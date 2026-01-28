@@ -50,6 +50,7 @@ const VoiceAgent: React.FC<VoiceAgentProps> = ({
   const [callEnded, setCallEnded] = useState(false);
   const transcriptRef = useRef<TranscriptMessage[]>([]);
   const callStartedAtRef = useRef<number | null>(null);
+  const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const initializeVapi = useCallback(() => {
     try {
@@ -106,26 +107,30 @@ const VoiceAgent: React.FC<VoiceAgentProps> = ({
           const text = String(message.transcript ?? "").trim();
           if (!text) return;
 
+          // Clear existing timeout
+          if (messageTimeoutRef.current) {
+            clearTimeout(messageTimeoutRef.current);
+          }
+
           setTranscript((prev) => {
             const lastMessage = prev[prev.length - 1];
             
-            // If the last message is from the same role and within 2 seconds, concatenate
+            // If last message is from same role and recent, update it
             if (
               lastMessage &&
               lastMessage.role === role &&
-              Date.now() - lastMessage.timestamp < 2000
+              Date.now() - lastMessage.timestamp < 3000
             ) {
-              // Update the last message by concatenating text
               const updatedMessages = [...prev];
               updatedMessages[updatedMessages.length - 1] = {
                 ...lastMessage,
-                text: lastMessage.text + " " + text,
+                text: text,
                 timestamp: Date.now(),
               };
               return updatedMessages;
             }
             
-            // Otherwise, add as new message
+            // Add new message
             return [...prev, { role, text, timestamp: Date.now() }];
           });
         }
@@ -402,12 +407,12 @@ const VoiceAgent: React.FC<VoiceAgentProps> = ({
                       className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2",
                         msg.role === "user"
-                          ? "bg-primary/20 border-primary/30"
+                          ? "bg-primary border-primary"
                           : "bg-secondary/20 border-secondary/30"
                       )}
                     >
                       {msg.role === "user" ? (
-                        <User className="w-4 h-4 text-primary" />
+                        <User className="w-4 h-4 text-primary-foreground" />
                       ) : (
                         <Bot className="w-4 h-4 text-secondary" />
                       )}
@@ -416,7 +421,7 @@ const VoiceAgent: React.FC<VoiceAgentProps> = ({
                       className={cn(
                         "max-w-[75%] px-4 py-3 rounded-2xl shadow-sm",
                         msg.role === "user"
-                          ? "bg-primary/10 border border-primary/20 text-primary-foreground"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-secondary/10 border border-secondary/20 text-secondary-foreground"
                       )}
                     >

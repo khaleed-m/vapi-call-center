@@ -11,6 +11,19 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ onStartVoice, className }) => {
   return (
     <section className={cn("relative min-h-screen flex items-center justify-center", className)}>
+      {/* Logo in top left corner */}
+      <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
+        <img 
+          src="/logo.png" 
+          alt="Logo" 
+          className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain logo-crisp"
+          style={{
+            filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) contrast(1.2) brightness(1.1)',
+            imageRendering: '-webkit-optimize-contrast'
+          }}
+        />
+      </div>
+
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-hero" />
       <div className="absolute inset-0 bg-gradient-glow opacity-30" />

@@ -25,6 +25,19 @@ const Index = () => {
   if (showVoiceAgent) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        {/* Logo in top left corner */}
+        <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
+          <img 
+            src="/logo.png" 
+            alt="Logo" 
+            className="w-12 h-12 md:w-16 md:h-16 object-contain logo-crisp"
+            style={{
+              filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) contrast(1.2) brightness(1.1)',
+              imageRendering: '-webkit-optimize-contrast'
+            }}
+          />
+        </div>
+
         <div className="w-full max-w-2xl space-y-6">
           <div className="flex items-center justify-between">
             <Button
