@@ -1,150 +1,235 @@
+# 🎯 Vapi Call Center
 
-## Learning Goal: Implement Vapi Voice Agents (no React/Node teaching)
+A modern AI-powered call center application built with **Vapi Voice Agents**, featuring real-time voice conversations and outbound calling capabilities.
 
-This repository is a hands-on base for a YouTube lesson focused on Vapi Voice Agents. You will learn how to:
+![Vapi Call Center](https://img.shields.io/badge/Vapi-Voice%20AI-blue?style=for-the-badge)
+![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-3178C6?style=for-the-badge&logo=typescript)
+![Express](https://img.shields.io/badge/Express-5.1.0-000000?style=for-the-badge&logo=express)
 
-- Start a voice call in the browser using the Vapi Web SDK
-- Trigger outbound phone calls from a secure backend using the Vapi Server SDK
+## ✨ Features
 
-We will not teach React or Node; they are already set up for you so you can concentrate on Vapi.
+- 🎙️ **Real-time Voice Conversations** - Natural AI voice interactions using Vapi Web SDK
+- 📞 **Outbound Calling** - Secure server-side call initiation with phone keypad interface
+- 💬 **Live Transcription** - Real-time conversation transcripts with deduplication
+- 🎨 **Modern UI** - Beautiful interface built with shadcn/ui and Tailwind CSS
+- 🔒 **Secure Backend** - Express.js server with proper API key management
+- 📊 **Call Analytics** - Transcript forwarding to webhooks for analysis
+- 🌐 **Full-Stack TypeScript** - End-to-end type safety
 
-## Prerequisites
+## 🚀 Quick Start
 
-- Node.js 18+ and npm
-- Vapi account with:
+### Prerequisites
+
+Before running this application, ensure you have:
+
+- **Node.js 18+** and **npm** installed
+- A **Vapi account** with the following credentials:
   - Public Web API Key
-  - Server (private) API Key
+  - Server (private) API Key  
   - Assistant ID
-  - Phone Number ID (for outbound calls/campaigns)
+  - Phone Number ID (for outbound calls)
 
-## Quick Start
+### Installation
 
-1) Install dependencies
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/khaleed-m/vapi-call-center.git
+   cd vapi-call-center
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   
+   Create a `.env` file in the project root:
+   ```env
+   # Backend (private - NEVER expose in client)
+   VAPI_API_KEY=your_private_server_token
+   PORT=3001
+
+   # Frontend (public - safe to expose in browser)
+   VITE_VAPI_PUBLIC_API_KEY=your_public_web_api_key
+   VITE_ASSISTANT_ID=your_assistant_id
+   VITE_DEFAULT_PHONE_NUMBER_ID=your_phone_number_id
+
+   # Optional: Webhook for transcript forwarding
+   N8N_WEBHOOK_URL=your_webhook_url
+   ```
+
+4. **Start the application**
+   ```bash
+   npm run dev
+   ```
+
+   The application will be available at:
+   - **Frontend**: http://localhost:8080
+   - **Backend**: http://localhost:3001
+
+## 🏗️ Project Structure
 
 ```
-npm i
+vapi-call-center/
+├── 📁 public/                 # Static assets
+├── 📁 server/                 # Express.js backend
+│   └── index.ts              # Main server file with Vapi integration
+├── 📁 src/                   # React frontend source
+│   ├── 📁 components/        # Reusable UI components
+│   │   ├── 📁 ui/           # shadcn/ui components
+│   │   └── 📁 voice/        # Voice-specific components
+│   │       ├── VoiceAgent.tsx        # Main voice interface
+│   │       └── OutboundCallForm.tsx  # Outbound calling form
+│   ├── 📁 pages/            # Application pages
+│   │   └── Index.tsx        # Main application page
+│   └── 📁 lib/              # Utility functions
+├── .env.example             # Environment variables template
+├── package.json             # Project dependencies and scripts
+└── README.md               # This file
 ```
 
-2) Create a `.env` file in the project root (same folder as `package.json`). See the full guide below.
+## 🔧 Available Scripts
 
-3) Start development (client + server):
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start both client and server in development mode |
+| `npm run dev:client` | Start only the Vite frontend server |
+| `npm run dev:server` | Start only the Express backend server |
+| `npm run build` | Build the frontend for production |
+| `npm run build:server` | Compile TypeScript server code |
+| `npm run start:server` | Run the compiled server |
 
+## 🌐 API Endpoints
+
+### Health Check
+- **GET** `/api/health` - Server status check
+
+### Outbound Calling
+- **POST** `/api/vapi/outbound-call`
+  ```json
+  {
+    "phoneNumberId": "string",
+    "assistantId": "string", 
+    "customer": {
+      "number": "string",
+      "name": "string (optional)"
+    }
+  }
+  ```
+
+- **POST** `/api/vapi/outbound-campaign`
+  ```json
+  {
+    "name": "string",
+    "phoneNumberId": "string",
+    "assistantId": "string",
+    "customer": {
+      "number": "string", 
+      "name": "string (optional)"
+    }
+  }
+  ```
+
+### Transcript Forwarding
+- **POST** `/api/transcripts` - Forward call transcripts to configured webhook
+
+## 🔐 Environment Variables
+
+### Backend Variables (Private)
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `VAPI_API_KEY` | Your Vapi server API key | ✅ |
+| `PORT` | Server port (default: 3001) | ❌ |
+| `N8N_WEBHOOK_URL` | Webhook URL for transcript forwarding | ❌ |
+
+### Frontend Variables (Public)
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `VITE_VAPI_PUBLIC_API_KEY` | Your Vapi public web API key | ✅ |
+| `VITE_ASSISTANT_ID` | Your Vapi assistant ID | ✅ |
+| `VITE_DEFAULT_PHONE_NUMBER_ID` | Default phone number for outbound calls | ✅ |
+
+> ⚠️ **Security Note**: Never put your private `VAPI_API_KEY` in any `VITE_` variable as it will be exposed in the browser bundle.
+
+## 🎨 Key Components
+
+### VoiceAgent Component
+- Handles real-time voice conversations using Vapi Web SDK
+- Manages call states (connected, speaking, listening)
+- Displays live transcription with role-based messaging
+- Animated voice visualizations and call status indicators
+
+### OutboundCallForm Component  
+- Phone keypad interface for entering destination numbers
+- Input validation and E.164 phone number formatting
+- Integration with backend API for secure call initiation
+
+### Backend Server
+- Express.js server with CORS and security middleware
+- Vapi Server SDK integration for outbound calling
+- Phone number validation and normalization
+- Webhook integration for transcript forwarding
+
+## 🔄 Development Workflow
+
+1. **Development Mode**: Run `npm run dev` to start both frontend and backend with hot reload
+2. **API Proxy**: Vite proxies `/api/*` requests to the Express server to avoid CORS issues
+3. **Environment**: Restart the dev server after modifying `.env` variables
+4. **Type Safety**: Full TypeScript support across frontend and backend
+
+## 🚀 Deployment
+
+### Frontend (Vite Build)
+```bash
+npm run build
+# Deploy the 'dist' folder to your static hosting service
 ```
-npm run dev
+
+### Backend (Node.js)
+```bash
+npm run build:server
+npm run start:server
+# Deploy to your Node.js hosting service
 ```
 
-- Frontend: http://localhost:8080
-- Backend: http://localhost:3001
+## 🛠️ Tech Stack
 
-## Environment Variables (very important)
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui
+- **Backend**: Express.js, TypeScript, Vapi Server SDK
+- **Voice AI**: Vapi Web SDK for real-time voice interactions
+- **Validation**: Zod for runtime type checking
+- **Development**: Concurrently for running multiple processes
 
-You will use two categories of environment variables:
+## 📝 Getting Vapi Credentials
 
-- Backend (private): NEVER expose in client or commit to public repos.
-- Frontend (public): Must be prefixed with `VITE_` because Vite injects them into the browser bundle.
+1. Sign up at [Vapi.ai](https://vapi.ai)
+2. Create a new assistant in the Vapi dashboard
+3. Get your API keys from the settings:
+   - **Public Key**: For frontend voice interactions
+   - **Private Key**: For backend server operations
+4. Configure a phone number for outbound calling
+5. Note down your Assistant ID and Phone Number ID
 
-Create a `.env` file at the project root with the following content:
+## 🤝 Contributing
 
-```
-# Backend (private - used only by Express server)
-VAPI_API_KEY=your_private_server_token
-PORT=3001
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
-# Frontend (public - safe to expose in browser)
-VITE_VAPI_PUBLIC_API_KEY=your_public_web_api_key
-VITE_ASSISTANT_ID=your_assistant_id
-VITE_DEFAULT_PHONE_NUMBER_ID=your_phone_number_id
+## 📄 License
 
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Where are these used?
+## 🙏 Acknowledgments
 
-- `VAPI_API_KEY` (private)
-  - Read by `server/index.ts` via `dotenv` and passed to `new VapiClient({ token: process.env.VAPI_API_KEY })`.
-  - Used to create outbound calls/campaigns securely from the server.
+- [Vapi.ai](https://vapi.ai) for the amazing voice AI platform
+- [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
+- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
 
-- `VITE_VAPI_PUBLIC_API_KEY` (public)
-  - Read in `src/pages/Index.tsx` and passed to the client SDK (`@vapi-ai/web`) via the `VoiceAgent` component.
+---
 
-- `VITE_ASSISTANT_ID` (public)
-  - Read in `src/pages/Index.tsx` and passed to both `VoiceAgent` and the outbound call form.
-
-- `VITE_DEFAULT_PHONE_NUMBER_ID` (public)
-  - Prefills the keypad form so students can quickly test calling from their assigned number.
-
-Important notes:
-
-- After editing `.env`, restart dev with `npm run dev` (Vite does not reload env automatically).
-- Do not put the server token into any `VITE_` variable.
-- Add `.env` to `.gitignore` to avoid committing secrets.
-
-## How the app is structured
-
-Key files:
-
-- `server/index.ts` (Express):
-  - Health endpoint: `GET /api/health`
-  - Outbound call: `POST /api/vapi/outbound-call`
-  - Outbound campaign: `POST /api/vapi/outbound-campaign`
-  - Validates and normalizes phone numbers to E.164-like format.
-  - Uses `@vapi-ai/server-sdk` with your private `VAPI_API_KEY`.
-
-- `vite.config.ts` (Vite dev server):
-  - Proxies `/api` from `http://localhost:8080` to `http://localhost:3001`.
-
-- `src/pages/Index.tsx` (React):
-  - Reads `VITE_*` variables.
-  - Renders the Voice Assistant and the Outbound Call keypad form.
-
-- `src/components/voice/VoiceAgent.tsx`:
-  - Uses `@vapi-ai/web` to start/stop calls.
-  - Listens to call events and collects transcript in memory.
-  - De-duplicates transcripts to avoid repeating the same line twice.
-
-- `src/components/voice/OutboundCallForm.tsx`:
-  - A phone-like keypad UI where users only enter the destination number.
-  - Calls `POST /api/vapi/outbound-campaign` with the assistant and phone number IDs.
-
-## Dev scripts
-
-- `npm run dev` — start client (8080) and server (3001) concurrently.
-- `npm run dev:client` — start only Vite client.
-- `npm run dev:server` — start only the Express server in watch mode.
-- `npm run build` — build client assets.
-- `npm run build:server` — type-check/emit server to `dist-server`.
-- `npm run start:server` — run compiled server.
-
-## API endpoints
-
-- `GET /api/health` — quick status.
-- `POST /api/vapi/outbound-call`
-  - Body: `{ phoneNumberId, assistantId, customer: { number, name? } }`
-  - Returns the call (or batch) result.
-
-- `POST /api/vapi/outbound-campaign`
-  - Body: `{ name, phoneNumberId, assistantId, customer: { number, name? } }`
-  - Creates a campaign with the provided customer.
-
-## How the proxy works (8080 -> 3001)
-
-The frontend calls relative paths like `/api/vapi/outbound-campaign`. In dev, Vite proxies these requests to the Express server. This avoids CORS issues and keeps your code cleaner.
-
-## Security tips
-
-- Keep `VAPI_API_KEY` on the server only.
-- Do not log secrets.
-- Prefer server-side integrations for outbound calls; do not expose privileged operations in the browser.
-
-## Troubleshooting
-
-- Missing `VAPI_API_KEY`:
-  - The server will log an error and outbound requests will fail. Set it in `.env` and restart.
-
-- Proxy not working:
-  - Make sure `npm run dev` is used (starts both servers), and do not hardcode `http://localhost:3001` in the client; use `/api/...`.
-
-## What students will learn
-
-- How to send calls via Vapi from a secure backend
-- How to build a small dialer UI and integrate it with a backend
-- How to handle real-time voice events and transcripts
+**Built with ❤️ by [Khaleed M](https://github.com/khaleed-m)**
