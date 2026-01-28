@@ -195,6 +195,20 @@ app.get("/api/health", (_req: Request, res: Response) => {
   res.status(200).json({ status: "ok", env: NODE_ENV });
 });
 
+// Root route
+app.get("/", (_req: Request, res: Response) => {
+  res.status(200).json({ 
+    message: "Vapi Call Center API", 
+    status: "running",
+    endpoints: [
+      "GET /api/health",
+      "POST /api/vapi/outbound-call",
+      "POST /api/vapi/outbound-campaign",
+      "POST /api/transcripts"
+    ]
+  });
+});
+
 // 404 handler for unknown API routes
 app.use("/api", (_req: Request, res: Response) => {
   res.status(404).json({ error: "Not Found" });
