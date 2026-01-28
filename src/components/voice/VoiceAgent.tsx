@@ -22,12 +22,17 @@ const deduplicateTranscript = (
 ): TranscriptMessage[] => {
   const seenKeys = new Set<string>();
   const uniqueMessages: TranscriptMessage[] = [];
+  
   for (const message of messages) {
-    const key = `${message.role}|${message.text}`;
+    // Create a more flexible key that accounts for similar content
+    const normalizedText = message.text.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    const key = `${message.role}|${normalizedText}`;
+    
     if (seenKeys.has(key)) continue;
     seenKeys.add(key);
     uniqueMessages.push(message);
   }
+  
   return uniqueMessages;
 };
 
@@ -43,7 +48,6 @@ const VoiceAgent: React.FC<VoiceAgentProps> = ({
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [callEnded, setCallEnded] = useState(false);
-  const seenTranscriptsRef = useRef<Set<string>>(new Set());
   const transcriptRef = useRef<TranscriptMessage[]>([]);
   const callStartedAtRef = useRef<number | null>(null);
 
@@ -56,7 +60,6 @@ const VoiceAgent: React.FC<VoiceAgentProps> = ({
         setIsConnected(true);
         setError(null);
         setCallEnded(false);
-        seenTranscriptsRef.current.clear();
         callStartedAtRef.current = Date.now();
       });
 
@@ -79,7 +82,6 @@ const VoiceAgent: React.FC<VoiceAgentProps> = ({
           body: JSON.stringify(payload),
         });
 
-        seenTranscriptsRef.current.clear();
         callStartedAtRef.current = null;
         setTimeout(() => {
           setCallEnded(false);
@@ -104,14 +106,28 @@ const VoiceAgent: React.FC<VoiceAgentProps> = ({
           const text = String(message.transcript ?? "").trim();
           if (!text) return;
 
-          const key = `${role}|${text}`;
-          if (seenTranscriptsRef.current.has(key)) return;
-          seenTranscriptsRef.current.add(key);
-
-          setTranscript((prev) => [
-            ...prev,
-            { role, text, timestamp: Date.now() },
-          ]);
+          setTranscript((prev) => {
+            const lastMessage = prev[prev.length - 1];
+            
+            // If the last message is from the same role and within 2 seconds, concatenate
+            if (
+              lastMessage &&
+              lastMessage.role === role &&
+              Date.now() - lastMessage.timestamp < 2000
+            ) {
+              // Update the last message by concatenating text
+              const updatedMessages = [...prev];
+              updatedMessages[updatedMessages.length - 1] = {
+                ...lastMessage,
+                text: lastMessage.text + " " + text,
+                timestamp: Date.now(),
+              };
+              return updatedMessages;
+            }
+            
+            // Otherwise, add as new message
+            return [...prev, { role, text, timestamp: Date.now() }];
+          });
         }
       });
 
